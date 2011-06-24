@@ -62,7 +62,7 @@ function _register_settings() {
  * @descrip: adds a submenu under the 'options' panel in wp-admin for managing 'Video settings'
  */
 function _create_menu() {
-    add_management_page('Offline Content', 'Offline Content', 'administrator', 'cache-manifest', '_settings_page');
+    add_options_page('Offline Content', 'Offline Content', 'administrator', 'cache-manifest', '_settings_page');
 }
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 /**
