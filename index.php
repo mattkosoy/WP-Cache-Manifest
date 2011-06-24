@@ -55,6 +55,8 @@ function _register_settings() {
 	register_setting( '_CacheManifestSettings', 'cached_js_setting');		// setting to select wether or not to cache js files
 	register_setting( '_CacheManifestSettings', 'cached_img_setting');		// setting for images
 	register_setting( '_CacheManifestSettings', 'cached_css_setting');		// setting for css
+	register_setting( '_CacheManifestSettings', 'cached_font_setting');		// setting for web fonts
+
 }
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 /**
@@ -69,7 +71,17 @@ function _create_menu() {
  * @function _settings_page
  * @descrip:admin page HTML for adding/editing cache manifest settings
 */
-function _settings_page() { ?>
+function _settings_page() { 
+	$cached_content_types = get_option('cached_content_types'); 
+	$cache_enabled = get_option('cache_enabled'); 
+	$cached_js_setting = get_option('cached_js_setting'); 
+	$cached_img_setting = get_option('cached_img_setting'); 
+	$cached_css_setting = get_option('cached_css_setting'); 
+	$cached_font_setting = get_option('cached_font_setting'); 
+
+	// to do:  update the UI to display current settings
+
+?>
 <div class="wrap">
 <h2>Manage Cache Manifest Settings</h2>
 <div class="updated below-h2" id="message" style="display:none;"></div>
@@ -86,11 +98,6 @@ function _settings_page() { ?>
 			<input type="checkbox" id="cache_enabled" value="yes" >
         </td>
         </tr>
-         
- 
-    
-    
-    
         <tr valign="top">
         <th scope="row">
         	<h3>Choose Content Types</h3>
@@ -138,6 +145,19 @@ function _settings_page() { ?>
 			<label for="cached_img_folder_path">Add the path to your theme's css directory</label>
         </td>
         </tr>        
+        
+        <!-- Add Webfonts to the Cache file? -->
+        <tr valign="top">
+        <th scope="row">
+        	<h3>Include Webfonts</h3>
+        </th>
+        <td style="padding-top: 30px;">
+			<input type="checkbox" id="cached_font_setting" value="yes" >
+			<input type="text" id="cached_font_folder_path" value="webfonts" style="width:66%"/>
+			<br/>
+			<label for="cached_font_folder_path">Add the path to your theme's fonts directory</label>
+        </td>
+        </tr>          
         
          <!-- Add Theme Images to the Cache file? -->
         <tr valign="top">
