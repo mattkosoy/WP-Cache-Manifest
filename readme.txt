@@ -5,7 +5,7 @@ Requires at least: 3.1.3
 Tested up to: 3.1.3
 Stable tag: 0.1
 
-git== Installation ==
+== Installation ==
 
 1. Upload the `cache-manifest` directory to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
