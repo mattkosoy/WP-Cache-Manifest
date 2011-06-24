@@ -56,6 +56,14 @@ function _register_settings() {
 	register_setting( '_CacheManifestSettings', 'cached_img_setting');		// setting for images
 	register_setting( '_CacheManifestSettings', 'cached_css_setting');		// setting for css
 	register_setting( '_CacheManifestSettings', 'cached_font_setting');		// setting for web fonts
+	register_setting( '_CacheManifestSettings', 'cached_js_folder_path');		// setting for web fonts
+	register_setting( '_CacheManifestSettings', 'cached_css_folder_path');		// setting for web fonts
+	register_setting( '_CacheManifestSettings', 'cached_font_folder_path');		// setting for web fonts
+	register_setting( '_CacheManifestSettings', 'cached_img_folder_path');		// setting for web fonts
+
+
+
+
 
 }
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
@@ -72,15 +80,17 @@ function _create_menu() {
  * @descrip:admin page HTML for adding/editing cache manifest settings
 */
 function _settings_page() { 
+	/* get vars for content displayage */
 	$cached_content_types = get_option('cached_content_types'); 
 	$cache_enabled = get_option('cache_enabled'); 
 	$cached_js_setting = get_option('cached_js_setting'); 
 	$cached_img_setting = get_option('cached_img_setting'); 
 	$cached_css_setting = get_option('cached_css_setting'); 
 	$cached_font_setting = get_option('cached_font_setting'); 
-
-	// to do:  update the UI to display current settings
-
+	$cached_js_folder_path = get_option('cached_js_folder_path'); 
+	$cached_css_folder_path = get_option('cached_css_folder_path'); 
+	$cached_font_folder_path = get_option('cached_font_folder_path'); 
+	$cached_img_folder_path = get_option('cached_img_folder_path'); 
 ?>
 <div class="wrap">
 <h2>Manage Cache Manifest Settings</h2>
@@ -95,7 +105,8 @@ function _settings_page() {
         	<h3>Enable Cache</h3>
         </th>
         <td style="padding-top: 30px;">
-			<input type="checkbox" id="cache_enabled" value="yes" >
+        	<?php if($cache_enabled == 'yes') { $s = "checked"; } else { $s = ''; }?>
+			<input type="checkbox" id="cache_enabled" name="cache_enabled" value="yes" <?php echo $s; ?>>
         </td>
         </tr>
         <tr valign="top">
@@ -112,7 +123,8 @@ function _settings_page() {
 					foreach($post_types as $pt){
 						
 						if($pt == 'revision' || $pt == 'nav_menu_item'){ } else {
-							echo '<option value="'.$pt.'">'.$pt.'</option>'."\n";
+							if(in_array($pt, $cached_content_types)){ $s = 'selected="selected"'; } else { $s = ''; }
+							echo '<option value="'.$pt.'" '.$s.' >'.$pt.'</option>'."\n";
 						}
 					}
 				?>
@@ -126,8 +138,10 @@ function _settings_page() {
         	<h3>Include Javascript</h3>
         </th>
         <td style="padding-top: 30px;">
-			<input type="checkbox" id="cached_js_setting" value="yes" >
-			<input type="text" id="cached_js_folder_path" value="js" style="width:66%"/>
+        	<?php if($cached_js_setting == 'yes') { $s = "checked"; } else { $s = ''; }?>
+        
+			<input type="checkbox" id="cached_js_setting" name="cached_js_setting" value="yes" <?php echo $s; ?> >
+			<input type="text" id="cached_js_folder_path" name="cached_js_folder_path" value="<? echo $cached_js_folder_path; ?>" style="width:66%"/>
 			<br/>
 			<label for="cached_img_folder_path">Add the path to your theme's js directory</label>
         </td>
@@ -139,8 +153,9 @@ function _settings_page() {
         	<h3>Include CSS</h3>
         </th>
         <td style="padding-top: 30px;">
-			<input type="checkbox" id="cached_css_setting" value="yes" >
-			<input type="text" id="cached_css_folder_path" value="" style="width:66%"/>
+        	<?php if($cached_css_setting == 'yes') { $s = "checked"; } else { $s = ''; }?>
+			<input type="checkbox" id="cached_css_setting" name="cached_css_setting" value="yes" <? echo $s; ?> >
+			<input type="text" id="cached_css_folder_path" name="cached_css_folder_path" value="<? echo $cached_css_folder_path; ?>" style="width:66%"/>
 			<br/>
 			<label for="cached_img_folder_path">Add the path to your theme's css directory</label>
         </td>
@@ -152,8 +167,10 @@ function _settings_page() {
         	<h3>Include Webfonts</h3>
         </th>
         <td style="padding-top: 30px;">
-			<input type="checkbox" id="cached_font_setting" value="yes" >
-			<input type="text" id="cached_font_folder_path" value="webfonts" style="width:66%"/>
+        	<?php if($cached_font_setting == 'yes') { $s = "checked"; } else { $s = ''; }?>
+        
+			<input type="checkbox" id="cached_font_setting" name="cached_font_setting" value="yes" <? echo $s; ?>>
+			<input type="text" id="cached_font_folder_path" name="cached_font_folder_path" value="<? echo $cached_font_folder_path; ?>" style="width:66%"/>
 			<br/>
 			<label for="cached_font_folder_path">Add the path to your theme's fonts directory</label>
         </td>
@@ -165,8 +182,10 @@ function _settings_page() {
         	<h3>Include Images</h3>
         </th>
         <td style="padding-top: 30px;">
-			<input type="checkbox" id="cached_img_setting" value="yes" >
-			<input type="text" id="cached_img_folder_path" value="img" style="width:66%"/>
+        	<?php if($cached_img_setting == 'yes') { $s = "checked"; } else { $s = ''; }?>
+        
+			<input type="checkbox" id="cached_img_setting" name="cached_img_setting" value="yes" <? echo $s; ?>>
+			<input type="text" id="cached_img_folder_path" name="cached_img_folder_path" value="<? echo $cached_img_folder_path; ?>" style="width:66%"/>
 			<br/>
 			<label for="cached_img_folder_path">Add the path to your theme's images directory</label>
         </td>
