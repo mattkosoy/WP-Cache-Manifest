@@ -4,7 +4,7 @@
  * @version 0.1	
  */
 /*
-Plugin Name: Cache Manifest
+Plugin Name: WP Cache Manifest
 Plugin URI: https://github.com/mattkosoy/wp-cache-manifest
 Description: A tool to create a cache manifest file that will enable offline application support in mobile web browsers.
 Author: Matt Kosoy
@@ -41,16 +41,18 @@ Author URI: http://mattkosoy.com/
 // hook into wp and add in the administration menus
 if ( is_admin() ){ // admin actions
 	add_action('admin_menu', '_create_menu');
-	add_action('admin_head', '_update_videos_js');
     add_action('admin_init', '_register_settings' );
-	add_action('wp_ajax__update_videos', '_update_videos');
-	add_action('right_now_content_table_end', '_dashboard');
-	add_action( 'contextual_help', '_add_help_text', 10, 3 );
-	add_action('restrict_manage_posts','_restrict_manage_posts');
-	add_action( 'request', '_video_sort_request' );
-	add_filter('post_updated_messages', '_Video_messages');
+	
+#	add_action('admin_head', '_update_videos_js');
 }
-
+/**
+ * @function AA_register_settings
+ * @descrip: registers our Video settings in the system
+ */
+function _register_settings() {
+	register_setting( '_CacheManifestSettings', 'vimeo_username' );
+	
+}
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 /**
  * @function _create_menu
@@ -78,7 +80,7 @@ function _settings_page() {
 <h2>Manage Cache Manifest Settings</h2>
 <div class="updated below-h2" id="message" style="display:none;"></div>
 <form method="post" action="options.php">
-    <?php settings_fields( '_VideoSettings' ); ?>
+    <?php settings_fields( '_CacheManifestSettings' ); ?>
     <table class="form-table">
         <tr valign="top">
         <th scope="row">Video Username</th>
