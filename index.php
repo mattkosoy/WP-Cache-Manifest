@@ -36,13 +36,15 @@ function _register_settings() {
 	register_setting( '_CacheManifestSettings', 'cached_content_types' ); 	// setting to select what content types to cache.
 	register_setting( '_CacheManifestSettings', 'cache_enabled');		// setting to select wether or not to cache js files
 	register_setting( '_CacheManifestSettings', 'cached_js_setting');		// setting to select wether or not to cache js files
+	register_setting( '_CacheManifestSettings', 'cached_jquery_setting');		// setting to select wether or not to cache jquery from google's CDN
 	register_setting( '_CacheManifestSettings', 'cached_img_setting');		// setting for images
 	register_setting( '_CacheManifestSettings', 'cached_css_setting');		// setting for css
 	register_setting( '_CacheManifestSettings', 'cached_font_setting');		// setting for web fonts
-	register_setting( '_CacheManifestSettings', 'cached_js_folder_path');		// setting for web fonts
-	register_setting( '_CacheManifestSettings', 'cached_css_folder_path');		// setting for web fonts
-	register_setting( '_CacheManifestSettings', 'cached_font_folder_path');		// setting for web fonts
-	register_setting( '_CacheManifestSettings', 'cached_img_folder_path');		// setting for web fonts
+	register_setting( '_CacheManifestSettings', 'cached_js_folder_path');		
+	register_setting( '_CacheManifestSettings', 'cached_css_folder_path');		
+	register_setting( '_CacheManifestSettings', 'cached_font_folder_path');		
+	register_setting( '_CacheManifestSettings', 'cached_img_folder_path');		
+	register_setting( '_CacheManifestSettings', 'cached_additional_urls');		
 }
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 /**
@@ -62,6 +64,7 @@ function _settings_page() {
 	$cached_content_types = get_option('cached_content_types'); 
 	$cache_enabled = get_option('cache_enabled'); 
 	$cached_js_setting = get_option('cached_js_setting'); 
+	$cached_jquery_setting = get_option('cached_jquery_setting'); 
 	$cached_img_setting = get_option('cached_img_setting'); 
 	$cached_css_setting = get_option('cached_css_setting'); 
 	$cached_font_setting = get_option('cached_font_setting'); 
@@ -69,12 +72,13 @@ function _settings_page() {
 	$cached_css_folder_path = get_option('cached_css_folder_path'); 
 	$cached_font_folder_path = get_option('cached_font_folder_path'); 
 	$cached_img_folder_path = get_option('cached_img_folder_path'); 
+	$cached_additional_urls = get_option('cached_additional_urls'); 
 
 	// determine if we can write to the site's .htaccess file.  if we can add the mime type for cache manifest.  
 	// if not, then display a message that tells the user to update their .htaccess file.
 	$filename = ABSPATH.'.htaccess';
 	if (is_writable($filename)) {
-		$to_add = "\nAddType text/cache-manifest .manifest";
+		$to_add = "\nAddType text/cache-manifest .appcache";
 		$file = file_get_contents($filename);
 		if(!strpos($file, $to_add)) {
 		  if (!$handle = fopen($filename, 'a')) {
@@ -159,9 +163,23 @@ function _settings_page() {
 			<input type="checkbox" id="cached_js_setting" name="cached_js_setting" value="yes" <?php echo $s; ?> >
 			<input type="text" id="cached_js_folder_path" name="cached_js_folder_path" value="<? echo $cached_js_folder_path; ?>" style="width:66%"/>
 			<br/>
-			<label for="cached_img_folder_path">Add the path to your theme's js directory</label>
+			<label for="cached_js_folder_path">Add the path to your theme's js directory</label>
         </td>
         </tr>
+        
+        <!-- Add JS to the Cache file? -->
+        <tr valign="top">
+        <th scope="row">
+        	<h3>Include Jquery (via google cdn)</h3>
+        </th>
+        <td style="padding-top: 30px;">
+        	<?php if($cached_jquery_setting == 'yes') { $s = "checked"; } else { $s = ''; }?>
+        
+			<input type="checkbox" id="cached_jquery_setting" name="cached_jquery_setting" value="yes" <?php echo $s; ?> >
+			<label for="cached_jquery_folder_path">Yes or No</label>
+        </td>
+        </tr>
+        
         
         <!-- Add CSS to the Cache file? -->
         <tr valign="top">
@@ -173,7 +191,7 @@ function _settings_page() {
 			<input type="checkbox" id="cached_css_setting" name="cached_css_setting" value="yes" <? echo $s; ?> >
 			<input type="text" id="cached_css_folder_path" name="cached_css_folder_path" value="<? echo $cached_css_folder_path; ?>" style="width:66%"/>
 			<br/>
-			<label for="cached_img_folder_path">Add the path to your theme's css directory</label>
+			<label for="cached_css_folder_path">Add the path to your theme's css directory</label>
         </td>
         </tr>        
         
@@ -206,6 +224,22 @@ function _settings_page() {
 			<label for="cached_img_folder_path">Add the path to your theme's images directory</label>
         </td>
         </tr> 
+        
+         <!-- Add Additional URLs -->
+        <tr valign="top">
+        <th scope="row">
+        	<h3>Additional URLs</h3>
+        </th>
+        <td style="padding-top: 30px;">
+			<textarea id="cached_additional_urls" name="cached_additional_urls" style="width:85%; height:200px; clear:both;"><? echo $cached_additional_urls; ?></textarea>
+			<br/>
+			<label for="cached_additional_urls">Add additionlal URLs to the cache file here.</label>
+        </td>
+        </tr> 
+
+
+        
+        
     </table>
     <p class="submit">
     <input type="submit"  class="button-primary" value="<?php _e('Save Changes') ?>" />
@@ -235,6 +269,7 @@ function _cache_manifest() {
 	$cached_content_types = get_option('cached_content_types'); 
 	$cache_enabled = get_option('cache_enabled'); 
 	$cached_js_setting = get_option('cached_js_setting'); 
+	$cached_jquery_setting = get_option('cached_jquery_setting'); 
 	$cached_img_setting = get_option('cached_img_setting'); 
 	$cached_css_setting = get_option('cached_css_setting'); 
 	$cached_font_setting = get_option('cached_font_setting'); 
@@ -242,17 +277,23 @@ function _cache_manifest() {
 	$cached_css_folder_path = get_option('cached_css_folder_path'); 
 	$cached_font_folder_path = get_option('cached_font_folder_path'); 
 	$cached_img_folder_path = get_option('cached_img_folder_path'); 
+	$cached_additional_urls = get_option('cached_additional_urls'); 
 
 	// set up the post content for our cache manifest
-	$cache_manifest_content = "# Website root \n / \n"; // start w/ the index of our website.	
+#	$cache_manifest_content = "# Website root \n"; // start w/ the index of our website.	
+#	$cache_manifest_content.= get_bloginfo('home')."\n";
+
 	//
-
-
 	// stuff that gets added to the post content field
 	if($cached_js_setting == 'yes'){
 		$cache_manifest_content.= "# Javascript \n";
-	
 		$cache_manifest_content.= get_bloginfo('template_url')."/".$cached_js_folder_path."/\n";
+		$cache_manifest_content.= recurseDirectories(TEMPLATEPATH."/".$cached_js_folder_path);
+	} 
+	// stuff that gets added to the post content field
+	if($cached_js_setting == 'yes'){
+		$cache_manifest_content.= "# jQuery \n";
+		$cache_manifest_content.= "https://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js\n";
 	} 
 
 	if($cached_css_setting == 'yes'){
@@ -261,6 +302,8 @@ function _cache_manifest() {
 			$cache_manifest_content.= get_bloginfo('stylesheet_url')."\n";
 		} else {
 			$cache_manifest_content.= get_bloginfo('template_url')."/".$cached_css_folder_path."/\n";
+			$cache_manifest_content.= recurseDirectories(TEMPLATEPATH."/".$cached_css_folder_path);
+			
 		}
 	} 
 
@@ -268,19 +311,24 @@ function _cache_manifest() {
 		$cache_manifest_content.= "# Custom font directory \n";
 
 		$cache_manifest_content.= get_bloginfo('template_url')."/".$cached_font_folder_path."/\n";
+		$cache_manifest_content.= recurseDirectories(TEMPLATEPATH."/".$cached_font_folder_path);
+		
 	}
 
 	if($cached_img_setting == 'yes'){
 		// theme image files
 		$cache_manifest_content.= "# Theme image files \n";
 		$cache_manifest_content.= get_bloginfo('template_url')."/".$cached_img_folder_path."/\n";
-		
+		$cache_manifest_content.= recurseDirectories(TEMPLATEPATH."/".$cached_img_folder_path);
 		// uploads
 		$upload_dir = wp_upload_dir();
 		$cache_manifest_content.= "# Uploads directory \n";
 		$cache_manifest_content.= $upload_dir['baseurl']."/\n";
+		$cache_manifest_content.= recurseDirectories($upload_dir['path']);
+
 	}
 
+	// post types
 	if(count($cached_content_types) > 0){
 		foreach($cached_content_types as $c){
 			$p = get_posts('post_type='.$c.'&numberposts=-1');
@@ -289,7 +337,7 @@ function _cache_manifest() {
 				foreach($p as $x){
 					if($x->post_name != 'cache_manifest'){ 
 						if($c != 'attachment'){ 
-							$cache_manifest_content .= get_permalink($x->ID)."\n";
+							$cache_manifest_content .= get_permalink($x->ID)."/\n";
 						} else {
 							$cache_manifest_content .= $x->guid."\n";
 						}
@@ -298,7 +346,14 @@ function _cache_manifest() {
 			}
 		}
 	}
-	
+
+
+	// additional schmutz
+	$cache_manifest_content.= "# Etc \n";
+	$cache_manifest_content.= $cached_additional_urls."\n";
+		
+
+
 	// test to see if we've already added a cache manifest post to this instance of wordpress.
 	$query = new WP_Query( 'name=cache_manifest&post_type=page' );
 
@@ -347,6 +402,7 @@ function _cache_manifest() {
 }
 
 // Page template filter callback
+// 
 function _cache_template($template) {
     // If tp-file.php is the set template
     if( is_page_template('cache_manifest.php') ){
@@ -355,6 +411,26 @@ function _cache_template($template) {
  	}
  // Return
     return $template;
+}
+
+// recurse the directories and append their info to our cache manifest string.
+// http://snipplr.com/view.php?codeview&id=29761
+function recurseDirectories($path){
+	$dir = new RecursiveDirectoryIterator($path);
+	$hashes = "";
+	$to_return = '';
+	foreach(new RecursiveIteratorIterator($dir) as $file) {
+		if ($file->IsFile() &&
+		$file != "./manifest.php" &&
+		substr($file->getFilename(), 0, 1) != "." &&
+		substr($file, 0, 9) != "./archive" &&
+		strpos($file, "/.svn") === false) {
+			$to_return.= $file . "\n";
+			$hashes .= md5_file($file);
+		}
+	}
+	$to_return.= "# Hash: " . md5($hashes) . "\n";
+	return $to_return;
 }
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
