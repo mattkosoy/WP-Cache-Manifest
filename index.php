@@ -83,7 +83,7 @@ function _settings_page() {
 	// if not, then display a message that tells the user to update their .htaccess file.
 	$filename = ABSPATH.'.htaccess';
 	if (is_writable($filename)) {
-		$to_add = "\nAddType text/cache-manifest .appcache";
+		$to_add = "\n\n # Add the cache manifest mimetype \n AddType text/cache-manifest .appcache";
 		$file = file_get_contents($filename);
 		if(!strpos($file, $to_add)) {
 		  if (!$handle = fopen($filename, 'a')) {
@@ -175,13 +175,13 @@ function _settings_page() {
         <!-- Add JS to the Cache file? -->
         <tr valign="top">
         <th scope="row">
-        	<h3>Include Jquery (via google cdn)</h3>
+        	<h3>Include Jquery</h3>
         </th>
         <td style="padding-top: 30px;">
         	<?php if($cached_jquery_setting == 'yes') { $s = "checked"; } else { $s = ''; }?>
         
 			<input type="checkbox" id="cached_jquery_setting" name="cached_jquery_setting" value="yes" <?php echo $s; ?> >
-			<label for="cached_jquery_folder_path">Yes or No</label>
+			<label for="cached_jquery_folder_path">Selecting this option will include a reference to jQuery via the Google CDN</label>
         </td>
         </tr>
         
@@ -343,18 +343,20 @@ function _cache_manifest() {
 		$cache_manifest_content.= recurseDirectories($upload_dir['path']);
 	}
 	
-	// post types
-	if(count($cached_content_types) > 0){
+	// post types	
+	if(count($cached_content_types) > 0 && is_array($cached_content_types)){
 		foreach($cached_content_types as $c){
-			$p = get_posts('post_type='.$c.'&numberposts=-1');
-			if(count($p) >0){ // if we have found posts from this post type then add the guid's to our cache manifest file.
-				$cache_manifest_content .= "# ".ucwords($c). " Post Type \n";
-				foreach($p as $x){
-					if($x->post_name != 'cache_manifest'){ 
-						if($c != 'attachment'){ 
-							$cache_manifest_content .= get_permalink($x->ID)."/\n";
-						} else {
-							$cache_manifest_content .= $x->guid."\n";
+			if($c != ''){ 
+				$p = get_posts('post_type='.$c.'&numberposts=-1');
+				if(count($p) >0){ // if we have found posts from this post type then add the guid's to our cache manifest file.
+					$cache_manifest_content .= "# ".ucwords($c). " Post Type \n";
+					foreach($p as $x){
+						if($x->post_name != 'cache_manifest'){ 
+							if($c != 'attachment'){ 
+								$cache_manifest_content .= get_permalink($x->ID)."/\n";
+							} else {
+								$cache_manifest_content .= $x->guid."\n";
+							}
 						}
 					}
 				}
