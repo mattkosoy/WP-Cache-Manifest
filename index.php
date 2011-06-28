@@ -37,6 +37,7 @@ function _register_settings() {
 	register_setting( '_CacheManifestSettings', 'cached_js_setting');		// setting to select wether or not to cache js files
 	register_setting( '_CacheManifestSettings', 'cached_jquery_setting');		// setting to select wether or not to cache jquery from google's CDN
 	register_setting( '_CacheManifestSettings', 'cached_img_setting');		// setting for images
+	register_setting( '_CacheManifestSettings', 'cached_uploads_setting');		// setting for images
 	register_setting( '_CacheManifestSettings', 'cached_css_setting');		// setting for css
 	register_setting( '_CacheManifestSettings', 'cached_font_setting');		// setting for web fonts
 	register_setting( '_CacheManifestSettings', 'cached_js_folder_path');		
@@ -64,7 +65,8 @@ function _settings_page() {
 	$cache_enabled = get_option('cache_enabled'); 
 	$cached_js_setting = get_option('cached_js_setting'); 
 	$cached_jquery_setting = get_option('cached_jquery_setting'); 
-	$cached_img_setting = get_option('cached_img_setting'); 
+	$cached_img_setting = get_option('cached_img_setting');
+	$cached_uploads_setting = get_option('cached_uploads_setting'); 	
 	$cached_css_setting = get_option('cached_css_setting'); 
 	$cached_font_setting = get_option('cached_font_setting'); 
 	$cached_js_folder_path = get_option('cached_js_folder_path'); 
@@ -227,7 +229,19 @@ function _settings_page() {
 			<label for="cached_img_folder_path">Add the path to your theme's images directory</label>
         </td>
         </tr> 
-        
+
+    <!-- Add Theme Images to the Cache file? -->
+        <tr valign="top">
+        <th scope="row">
+        	<h3>Include Uploads Directory</h3>
+        </th>
+        <td style="padding-top: 30px;">
+        	<?php if($cached_uploads_setting == 'yes') { $s = "checked"; } else { $s = ''; }?>
+			<input type="checkbox" id="cached_uploads_setting" name="cached_uploads_setting" value="yes" <? echo $s; ?>>
+		</td>
+		</tr>
+
+
          <!-- Add Additional URLs -->
         <tr valign="top">
         <th scope="row">
@@ -239,9 +253,6 @@ function _settings_page() {
 			<label for="cached_additional_urls">Add additionlal URLs to the cache file here.</label>
         </td>
         </tr> 
-
-
-        
         
     </table>
     <p class="submit">
@@ -273,6 +284,7 @@ function _cache_manifest() {
 	$cached_js_setting = get_option('cached_js_setting'); 
 	$cached_jquery_setting = get_option('cached_jquery_setting'); 
 	$cached_img_setting = get_option('cached_img_setting'); 
+	$cached_uploads_setting = get_option('cached_uploads_setting'); 
 	$cached_css_setting = get_option('cached_css_setting'); 
 	$cached_font_setting = get_option('cached_font_setting'); 
 	$cached_js_folder_path = get_option('cached_js_folder_path'); 
@@ -315,19 +327,22 @@ function _cache_manifest() {
 		$cache_manifest_content.= recurseDirectories(TEMPLATEPATH."/".$cached_font_folder_path);
 	}
 
-	// images & uploads
+	// images
 	if($cached_img_setting == 'yes'){
 		// theme image files
 		$cache_manifest_content.= "# Theme image files \n";
 		$cache_manifest_content.= get_bloginfo('template_url')."/".$cached_img_folder_path."/\n";
 		$cache_manifest_content.= recurseDirectories(TEMPLATEPATH."/".$cached_img_folder_path);
-		// uploads
+	}
+
+	//  uploads
+	if($cached_uploads_setting == 'yes'){
 		$upload_dir = wp_upload_dir();
 		$cache_manifest_content.= "# Uploads directory \n";
 		$cache_manifest_content.= $upload_dir['baseurl']."/\n";
 		$cache_manifest_content.= recurseDirectories($upload_dir['path']);
 	}
-
+	
 	// post types
 	if(count($cached_content_types) > 0){
 		foreach($cached_content_types as $c){
