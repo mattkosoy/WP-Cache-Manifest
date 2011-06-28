@@ -13,8 +13,8 @@ Author URI: http://mattkosoy.com/
 //
 
 global $wp_version;
-if( version_compare( $wp_version, "2.9", "<" ) ){
-    exit( 'This plugin requires WordPress 2.9 or newer. <a href="http://codex.wordpress.org/Upgrading_WordPress">Please update!</a>' );
+if( version_compare( $wp_version, "3.1", "<" ) ){
+    exit( 'This plugin requires WordPress 3.1 or newer. <a href="http://codex.wordpress.org/Upgrading_WordPress">Please update!</a>' );
 }
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 /* define vars & add plugin actions */

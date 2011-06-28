@@ -1,7 +1,7 @@
 === Plugin Name ===
 Contributors: Matt Kosoy
 Tags: cache manifest, cache, offline content
-Requires at least: 3.1.3
+Requires at least: 3.1
 Tested up to: 3.1.3
 Stable tag: 0.1.1
 
