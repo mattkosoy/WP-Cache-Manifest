@@ -10,8 +10,6 @@ Author URI: http://mattkosoy.com/
 */
 
 
-//
-
 global $wp_version;
 if( version_compare( $wp_version, "3.1", "<" ) ){
     exit( 'This plugin requires WordPress 3.1 or newer. <a href="http://codex.wordpress.org/Upgrading_WordPress">Please update!</a>' );
@@ -75,6 +73,10 @@ function _settings_page() {
 	$cached_img_folder_path = get_option('cached_img_folder_path'); 
 	$cached_additional_urls = get_option('cached_additional_urls'); 
 
+
+	// Todo:  Clean this up and make it so that it doesn't use fopen every time.
+	
+	
 	// determine if we can write to the site's .htaccess file.  if we can add the mime type for cache manifest.  
 	// if not, then display a message that tells the user to update their .htaccess file.
 	$filename = ABSPATH.'.htaccess';
@@ -265,7 +267,6 @@ function _settings_page() {
 */
 function _cache_manifest() { 
 	global $user_ID;
-
 	/* get vars for content displayage */
 	$cached_content_types = get_option('cached_content_types'); 
 	$cache_enabled = get_option('cache_enabled'); 
@@ -284,19 +285,19 @@ function _cache_manifest() {
 #	$cache_manifest_content = "# Website root \n"; // start w/ the index of our website.	
 #	$cache_manifest_content.= get_bloginfo('home')."\n";
 
-	//
-	// stuff that gets added to the post content field
+	// Javascript
 	if($cached_js_setting == 'yes'){
 		$cache_manifest_content.= "# Javascript \n";
 		$cache_manifest_content.= get_bloginfo('template_url')."/".$cached_js_folder_path."/\n";
 		$cache_manifest_content.= recurseDirectories(TEMPLATEPATH."/".$cached_js_folder_path);
 	} 
-	// stuff that gets added to the post content field
+	// jQuery
 	if($cached_js_setting == 'yes'){
 		$cache_manifest_content.= "# jQuery \n";
 		$cache_manifest_content.= "https://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js\n";
 	} 
 
+	// CSS
 	if($cached_css_setting == 'yes'){
 		$cache_manifest_content.= "# CSS \n";
 		if($cached_css_folder_path == ''){
@@ -304,18 +305,17 @@ function _cache_manifest() {
 		} else {
 			$cache_manifest_content.= get_bloginfo('template_url')."/".$cached_css_folder_path."/\n";
 			$cache_manifest_content.= recurseDirectories(TEMPLATEPATH."/".$cached_css_folder_path);
-			
 		}
 	} 
 
+	// Webfonts
 	if($cached_font_setting == 'yes'){
 		$cache_manifest_content.= "# Custom font directory \n";
-
 		$cache_manifest_content.= get_bloginfo('template_url')."/".$cached_font_folder_path."/\n";
 		$cache_manifest_content.= recurseDirectories(TEMPLATEPATH."/".$cached_font_folder_path);
-		
 	}
 
+	// images & uploads
 	if($cached_img_setting == 'yes'){
 		// theme image files
 		$cache_manifest_content.= "# Theme image files \n";
@@ -326,7 +326,6 @@ function _cache_manifest() {
 		$cache_manifest_content.= "# Uploads directory \n";
 		$cache_manifest_content.= $upload_dir['baseurl']."/\n";
 		$cache_manifest_content.= recurseDirectories($upload_dir['path']);
-
 	}
 
 	// post types
@@ -348,16 +347,12 @@ function _cache_manifest() {
 		}
 	}
 
-
 	// additional schmutz
 	$cache_manifest_content.= "# Etc \n";
 	$cache_manifest_content.= $cached_additional_urls."\n";
-		
-
 
 	// test to see if we've already added a cache manifest post to this instance of wordpress.
 	$query = new WP_Query( 'name=cache_manifest&post_type=page' );
-
 	if($query->have_posts()){	
 		$post = $query->posts[0];		// if we have added an instance, then assign it to the plugin variable.
 		if($cache_enabled == 'yes'){
@@ -368,7 +363,6 @@ function _cache_manifest() {
 		$post->post_content = '';
 		$post->post_content = $cache_manifest_content;
 	} else { 
-	#	echo "POST NOT FOUND";
 		$post = array(					//  if not, then create an instance.
 		  'ID' => null, 
 		  'comment_status' => 'closed', 
@@ -390,8 +384,6 @@ function _cache_manifest() {
 		}		
 		$post['post_content'] = $cache_manifest_content;
 	}
-	
-	
 	// go ahead and insert new page record to local db.
 	$success = wp_update_post( $post );
 	if( !$success ){
@@ -399,7 +391,8 @@ function _cache_manifest() {
 	} else {
 		update_post_meta( $success, '_wp_page_template', 'cache_manifest.php' ); // tell our post to use the cache_manifest template.
 	} 
-
+	// cache rules everything around me.
+	// http://awesomedudesprinting.com/shop/cache-rules-everything-around-me-shirt/
 }
 
 // Page template filter callback
@@ -415,7 +408,7 @@ function _cache_template($template) {
 }
 
 // recurse the directories and append their info to our cache manifest string.
-// http://snipplr.com/view.php?codeview&id=29761
+// based on: http://snipplr.com/view.php?codeview&id=29761
 function recurseDirectories($path){
 	$dir = new RecursiveDirectoryIterator($path);
 	$hashes = "";
@@ -426,7 +419,8 @@ function recurseDirectories($path){
 		substr($file->getFilename(), 0, 1) != "." &&
 		substr($file, 0, 9) != "./archive" &&
 		strpos($file, "/.svn") === false) {
-			$to_return.= $file . "\n";
+			$sanitized_file = str_replace ($_SERVER['DOCUMENT_ROOT'], '', $file);
+			$to_return.= $sanitized_file . "\n";
 			$hashes .= md5_file($file);
 		}
 	}
