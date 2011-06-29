@@ -83,7 +83,7 @@ function _settings_page() {
 	// if not, then display a message that tells the user to update their .htaccess file.
 	$filename = ABSPATH.'.htaccess';
 	if (is_writable($filename)) {
-		$to_add = "\n\n # Add the cache manifest mimetype \n AddType text/cache-manifest .appcache";
+		$to_add = "\n\n# Add the cache manifest mimetype \nAddType text/cache-manifest .appcache";
 		$file = file_get_contents($filename);
 		if(!strpos($file, $to_add)) {
 		  if (!$handle = fopen($filename, 'a')) {
