@@ -1,8 +1,5 @@
 <?php
 /*
-Plugin Name: WP Cache Manifest
-Plugin URI: https://github.com/mattkosoy/wp-cache-manifest
-Plugin Description: A tool to create a cache manifest file that will enable offline application support in mobile web browsers.
 File Name:   cache_manifest.php
 File Description:  this file works as the custom page template for our 'cache_manifest' page.  
 Author: Matt Kosoy
