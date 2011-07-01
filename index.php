@@ -5,7 +5,7 @@ Plugin URI: https://github.com/mattkosoy/wp-cache-manifest
 File Name:   index.php
 Description: A tool to create a cache manifest file that will enable offline application support in mobile web browsers.
 Author: Matt Kosoy
-Version: 0.1.1
+Version: 0.1.2
 Author URI: http://mattkosoy.com/
 */
 
