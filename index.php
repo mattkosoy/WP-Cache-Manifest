@@ -76,6 +76,14 @@ function _settings_page() {
 	$cached_additional_urls = get_option('cached_additional_urls'); 
 
 
+
+/*
+ * @ Uncomment the code below if you want this plugin to attempt to append -
+ * @ the text/cache-manifest mime type to your .htaccess file
+*/
+
+/*
+
 	// Todo:  Clean this up and make it so that it doesn't use fopen every time.
 	
 	
@@ -100,7 +108,8 @@ function _settings_page() {
 	} else {
 		$display_add_mime_message = true;
 	}
-	
+
+*/	
 ?>
 <div class="wrap">
 <h2>Manage Cache Manifest Settings</h2>
